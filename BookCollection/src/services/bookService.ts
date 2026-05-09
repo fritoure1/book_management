@@ -28,5 +28,22 @@ export const bookService = {
       book.summary || null, book.format, book.status, book.file_uri || null, 
       book.current_page, book.total_pages
     ])
-    }
+    },
+    getBookById: async (db: SQLite.SQLiteDatabase, id: number): Promise<Book | null> => {
+    return await db.getFirstAsync<Book>('SELECT * FROM books WHERE id = ?', [id]);
+  },
+
+  // NOUVEAU : Mettre à jour la page actuelle et le statut
+  updateProgress: async (db: SQLite.SQLiteDatabase, id: number, currentPage: number, status: string) => {
+    return await db.runAsync(
+      'UPDATE books SET current_page = ?, status = ? WHERE id = ?',
+      [currentPage, status, id]
+    );
+  },
+  updateFileUri: async (db: SQLite.SQLiteDatabase, id: number, fileUri: string) => {
+    return await db.runAsync(
+      'UPDATE books SET file_uri = ? WHERE id = ?',
+      [fileUri, id]
+    );
+  }
 };
