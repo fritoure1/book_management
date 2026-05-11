@@ -1,112 +1,139 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, ScrollView, ActivityIndicator } from 'react-native';
+import { useFocusEffect } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 
-import { Collapsible } from '@/src/components/ui/collapsible';
-import { ExternalLink } from '@/src/components/external-link';
-import ParallaxScrollView from '@/src/components/parallax-scroll-view';
 import { ThemedText } from '@/src/components/themed-text';
 import { ThemedView } from '@/src/components/themed-view';
-import { IconSymbol } from '@/src/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+import { useStatsController } from '@/src/hooks/useStatsController'; // Ton fameux contrôleur MVC !
 
-export default function TabTwoScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
+export default function StatsScreen() {
+  const db = useSQLiteContext();
+  
+  // La Vue demande les infos au Contrôleur
+  const { loading, stats, fetchBooks } = useStatsController(db);
+
+  // Déclencheur à l'ouverture de la page
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchBooks();
+    }, [fetchBooks])
+  );
+
+  if (loading) {
+    return (
+      <ThemedView style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#10b981" />
       </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    );
+  }
+
+  // --- RENDU VISUEL ---
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <ThemedText type="title" style={styles.pageTitle}>Mes Statistiques</ThemedText>
+
+      {/* Carte Principale : Pages lues */}
+      <View style={[styles.card, styles.mainCard]}>
+        <ThemedText style={styles.cardTitle}>Total des pages lues</ThemedText>
+        <ThemedText style={styles.bigNumber}>{stats.totalPagesRead}</ThemedText>
+        <ThemedText style={styles.cardSubtitle}>Continue comme ça ! 🚀</ThemedText>
+      </View>
+
+      {/* Grille de statistiques secondaires */}
+      <View style={styles.grid}>
+        
+        {/* Total des livres */}
+        <View style={[styles.card, styles.halfCard]}>
+          <ThemedText style={styles.cardTitle}>Livres possédés</ThemedText>
+          <ThemedText style={styles.mediumNumber}>{stats.totalBooks}</ThemedText>
+          <ThemedText style={styles.cardEmoji}>📚</ThemedText>
+        </View>
+
+        {/* Livres terminés */}
+        <View style={[styles.card, styles.halfCard]}>
+          <ThemedText style={styles.cardTitle}>Livres terminés</ThemedText>
+          <ThemedText style={styles.mediumNumber}>{stats.finished}</ThemedText>
+          <ThemedText style={styles.cardEmoji}>✅</ThemedText>
+        </View>
+
+        {/* En cours */}
+        <View style={[styles.card, styles.halfCard]}>
+          <ThemedText style={styles.cardTitle}>En cours</ThemedText>
+          <ThemedText style={styles.mediumNumber}>{stats.inProgress}</ThemedText>
+          <ThemedText style={styles.cardEmoji}>⏳</ThemedText>
+        </View>
+
+        {/* À lire */}
+        <View style={[styles.card, styles.halfCard]}>
+          <ThemedText style={styles.cardTitle}>Pile à lire</ThemedText>
+          <ThemedText style={styles.mediumNumber}>{stats.toRead}</ThemedText>
+          <ThemedText style={styles.cardEmoji}>📖</ThemedText>
+        </View>
+      </View>
+
+      {/* Répartition des formats */}
+      <View style={styles.card}>
+        <ThemedText style={styles.cardTitle}>Formats</ThemedText>
+        <View style={styles.formatRow}>
+          <View style={styles.formatItem}>
+            <ThemedText style={styles.formatNumber}>{stats.physical}</ThemedText>
+            <ThemedText style={styles.formatLabel}>Physiques</ThemedText>
+          </View>
+          <View style={styles.formatDivider} />
+          <View style={styles.formatItem}>
+            <ThemedText style={styles.formatNumber}>{stats.digital}</ThemedText>
+            <ThemedText style={styles.formatLabel}>Numériques</ThemedText>
+          </View>
+        </View>
+      </View>
+
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  container: { flex: 1, backgroundColor: '#151718' },
+  content: { padding: 20, paddingTop: 60, paddingBottom: 40 },
+  pageTitle: { marginBottom: 20 },
+  
+  card: {
+    backgroundColor: '#222',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
   },
-  titleContainer: {
+  mainCard: {
+    alignItems: 'center',
+    backgroundColor: '#10b981', // Vert émeraude pour la stat principale
+  },
+  grid: {
     flexDirection: 'row',
-    gap: 8,
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
+  halfCard: {
+    width: '48%', // Prend presque la moitié de l'écran
+    alignItems: 'center',
+  },
+  
+  cardTitle: { fontSize: 14, color: '#ccc', fontWeight: '600', marginBottom: 5, textAlign: 'center' },
+  cardSubtitle: { fontSize: 14, color: '#e0f2fe', marginTop: 5 },
+  
+  // FIX : Ajout de lineHeight et paddingVertical pour ne pas couper le texte
+  bigNumber: { fontSize: 48, fontWeight: 'bold', color: '#fff', lineHeight: 55, paddingVertical: 5 },
+  mediumNumber: { fontSize: 32, fontWeight: 'bold', color: '#fff', lineHeight: 40 },
+  cardEmoji: { fontSize: 24, marginTop: 5 },
+
+  formatRow: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', marginTop: 10 },
+  formatItem: { alignItems: 'center' },
+  formatNumber: { fontSize: 24, fontWeight: 'bold', color: '#fff' },
+  formatLabel: { fontSize: 14, color: '#aaa' },
+  formatDivider: { width: 1, height: 40, backgroundColor: '#444' }
 });

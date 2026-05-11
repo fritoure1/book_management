@@ -73,7 +73,7 @@ export default function HomeScreen() {
       
       {/* En-tête */}
       <View style={styles.header}>
-        <ThemedText type="title">Ma Biblio</ThemedText>
+        <ThemedText type="title">Collections</ThemedText>
         <Link href="/modal" asChild>
           <Pressable style={styles.addButton}>
             <ThemedText style={styles.addButtonText}>+</ThemedText>
