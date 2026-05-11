@@ -90,9 +90,20 @@ export default function BookDetailsScreen() {
 
     // CAS 1 : On a déjà un fichier lié
     if (book.file_uri) {
-      // Le fichier existe, on passe en mode lecture interne !
-      setIsReading(true);
-    
+      const isPdf = book.file_uri.toLowerCase().includes('.pdf');
+
+      if (isPdf) {
+        // C'est un PDF : Lecteur interne (WebView)
+        setIsReading(true);
+      } else {
+        // C'est un EPUB : On délègue à l'app native de l'iPhone (Apple Books, etc.)
+        const isAvailable = await Sharing.isAvailableAsync();
+        if (isAvailable) {
+          await Sharing.shareAsync(book.file_uri);
+        } else {
+          alert("Impossible d'ouvrir ce fichier sur cet appareil.");
+        }
+      }
     } 
     // CAS 2 : Pas de fichier, on propose d'en ajouter un
     else {
