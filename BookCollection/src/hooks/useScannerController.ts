@@ -73,12 +73,17 @@ export function useScannerController() {
 
   const handleSave = async (data: BookFormData) => {
     if (!scannedBook) return;
-    // if (data.format === 'numerique' && !fileUri) {
-    //   alert("Veuillez lier un fichier PDF ou EPUB.");
-    //   return;
-    // }
 
     try {
+      // 1. ON VÉRIFIE LES DOUBLONS ICI
+      const isDuplicate = await bookService.checkDuplicate(db, data.title, data.format);
+      
+      if (isDuplicate) {
+        alert(`Tu possèdes déjà "${data.title}" en format ${data.format} !`);
+        return; // On arrête la fonction ici, on n'enregistre pas.
+      }
+
+      // 2. Si c'est bon, on sauvegarde
       await bookService.addBook(db, {
         title: data.title,
         author: data.author,

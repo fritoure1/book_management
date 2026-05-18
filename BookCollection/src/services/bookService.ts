@@ -19,19 +19,29 @@ export const bookService = {
         return await db.getAllAsync<Book>('SELECT * from books ORDER BY added_at DESC')
     },
     addBook: async (db: SQLite.SQLiteDatabase, book: Omit<Book, 'id'>) => {
-    const query = `
-      INSERT INTO books (title, author, isbn, cover_url, summary, format, status, file_uri, current_page, total_pages, added_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
-    `;
-    return await db.runAsync(query, [
-      book.title, book.author, book.isbn || null, book.cover_url || null, 
-      book.summary || null, book.format, book.status, book.file_uri || null, 
-      book.current_page, book.total_pages
-    ])
+      const query = `
+        INSERT INTO books (title, author, isbn, cover_url, summary, format, status, file_uri, current_page, total_pages, added_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+      `;
+      return await db.runAsync(query, [
+        book.title, book.author, book.isbn || null, book.cover_url || null, 
+        book.summary || null, book.format, book.status, book.file_uri || null, 
+        book.current_page, book.total_pages
+      ])
+    },
+    // NOUVEAU : Vérifier si le livre existe déjà dans ce format
+    checkDuplicate: async (db: SQLite.SQLiteDatabase, title: string, format: string): Promise<boolean> => {
+      // On utilise LOWER() pour que "Harry Potter" et "harry potter" soient considérés comme identiques
+      const existingBook = await db.getFirstAsync<{ id: number }>(
+        'SELECT id FROM books WHERE LOWER(title) = LOWER(?) AND format = ?',
+        [title, format]
+      );
+      // Si existingBook n'est pas null, ça veut dire que le livre existe déjà (true)
+      return existingBook !== null;
     },
     getBookById: async (db: SQLite.SQLiteDatabase, id: number): Promise<Book | null> => {
-    return await db.getFirstAsync<Book>('SELECT * FROM books WHERE id = ?', [id]);
-  },
+      return await db.getFirstAsync<Book>('SELECT * FROM books WHERE id = ?', [id]);
+    },
 
   // NOUVEAU : Mettre à jour la page actuelle et le statut
   updateProgress: async (db: SQLite.SQLiteDatabase, id: number, currentPage: number, status: string) => {
@@ -45,5 +55,26 @@ export const bookService = {
       'UPDATE books SET file_uri = ? WHERE id = ?',
       [fileUri, id]
     );
-  }
+  },
+  deleteBook: async (db: SQLite.SQLiteDatabase, id: number) => {
+    return await db.runAsync('DELETE FROM books WHERE id = ?', [id]);
+  },
+
+  // MODIFIER un livre (Titre, Auteur, Résumé, Format)
+  updateBook: async (db: SQLite.SQLiteDatabase, id: number, book: Partial<Book>) => {
+  const query = `
+    UPDATE books 
+    SET title = ?, author = ?, summary = ?, format = ?
+    WHERE id = ?
+  `;
+
+  // Correction : on utilise ?? null pour transformer les 'undefined' en 'null'
+  return await db.runAsync(query, [
+    book.title ?? null, 
+    book.author ?? null, 
+    book.summary ?? null, 
+    book.format ?? null, 
+    id
+  ]);
+}
 };
