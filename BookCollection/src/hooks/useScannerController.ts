@@ -4,10 +4,10 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-
+import { Alert } from 'react-native';
 import { GoogleBookData,GoogleBooksService } from '../services/googleBookService';
 import { bookService } from '@/src/services/bookService';
-import { fr } from 'zod/v4/locales';
+
 
 export const bookSchema = z.object({
   title: z.string().min(1, 'Le titre est requis'),
@@ -79,8 +79,7 @@ export function useScannerController() {
       const isDuplicate = await bookService.checkDuplicate(db, data.title, data.format);
       
       if (isDuplicate) {
-        alert(`Tu possèdes déjà "${data.title}" en format ${data.format} !`);
-        return; // On arrête la fonction ici, on n'enregistre pas.
+      Alert.alert("Doublon", `Tu possèdes déjà "${data.title}" en format ${data.format} !`);        return; // On arrête la fonction ici, on n'enregistre pas.
       }
 
       // 2. Si c'est bon, on sauvegarde
@@ -97,10 +96,10 @@ export function useScannerController() {
         total_pages: scannedBook.total_pages,
       });
 
-      alert("Livre ajouté ! 🎉");
+      Alert.alert("Succès", "Livre ajouté ! 🎉");
       handleReset();
     } catch (error) {
-      alert("Erreur lors de l'enregistrement.");
+      Alert.alert("Erreur", "Un problème est survenu lors de l'enregistrement.");
     }
   };
 

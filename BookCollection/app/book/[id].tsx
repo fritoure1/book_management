@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView, Image, ActivityIndicator, TextInput, Button, Alert } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import * as Sharing from 'expo-sharing';
 import { WebView } from 'react-native-webview';
@@ -180,7 +180,13 @@ export default function BookDetailsScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      
+      <Stack.Screen 
+        options={{ 
+          title: book.title, // Le vrai titre du livre !
+          headerBackTitle: "Retour", // Remplace le "(tabs)" sur iOS
+          headerTintColor: "#10b981" // Optionnel : met la flèche de retour en vert
+        }} 
+      />
       <View style={styles.header}>
         {book.cover_url ? (
           <Image source={{ uri: book.cover_url }} style={styles.cover} resizeMode="contain" />

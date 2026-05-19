@@ -43,13 +43,13 @@ export function BookForm({ initialData, onSubmit, onCancel, onPickDocument, file
       
       <ThemedText type="subtitle" style={styles.label}>Titre :</ThemedText>
       <Controller control={control} name="title" render={({ field: { onChange, value } }) => (
-          <TextInput style={styles.input} value={value} onChangeText={onChange} placeholder="Titre du livre" />
+          <TextInput style={styles.input} value={value} onChangeText={onChange} placeholder="Titre du livre" placeholderTextColor="#888"/>
       )} />
       {errors.title && <ThemedText style={styles.error}>{errors.title.message}</ThemedText>}
 
       <ThemedText type="subtitle" style={styles.label}>Auteur :</ThemedText>
       <Controller control={control} name="author" render={({ field: { onChange, value } }) => (
-          <TextInput style={styles.input} value={value} onChangeText={onChange} placeholder="Nom de l'auteur" />
+          <TextInput style={styles.input} value={value} onChangeText={onChange} placeholder="Nom de l'auteur" placeholderTextColor="#888"/>
       )} />
 
       <ThemedText type="subtitle" style={styles.label}>Résumé :</ThemedText>
@@ -62,6 +62,7 @@ export function BookForm({ initialData, onSubmit, onCancel, onPickDocument, file
             numberOfLines={5} 
             textAlignVertical="top"
             placeholder="Synopsis..."
+            placeholderTextColor="#888"
           />
       )} />
 

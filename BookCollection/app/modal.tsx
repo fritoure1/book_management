@@ -4,7 +4,7 @@ import { StyleSheet, TextInput, FlatList, Pressable, ActivityIndicator, View, Bu
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-
+import { Alert } from 'react-native';
 import { ThemedText } from '@/src/components/themed-text';
 import { ThemedView } from '@/src/components/themed-view';
 import { useManualSearch } from '@/src/hooks/useManualSearch';
@@ -26,8 +26,7 @@ export default function ModalScreen() {
       const isDuplicate = await bookService.checkDuplicate(db, data.title, data.format);
       
       if (isDuplicate) {
-        alert(`Tu possèdes déjà "${data.title}" en format ${data.format} !`);
-        return; // On annule l'ajout
+      Alert.alert("Doublon", `Tu possèdes déjà "${data.title}" en format ${data.format} !`);        return; // On annule l'ajout
       }
 
       // 2. Si c'est bon, on sauvegarde
@@ -41,10 +40,10 @@ export default function ModalScreen() {
         total_pages: selectedBook?.total_pages || 0,
       });
       
-      alert("Livre ajouté !");
+      Alert.alert("Succès", "Livre ajouté !");
       router.back();
     } catch (e) {
-      alert("Erreur de sauvegarde");
+      Alert.alert("Erreur", "Erreur de sauvegarde");
     }
   };
 
@@ -69,6 +68,7 @@ export default function ModalScreen() {
         <TextInput 
           style={styles.input} 
           placeholder="Titre ou auteur..." 
+          placeholderTextColor="#888"
           value={query}
           onChangeText={setQuery}
           onSubmitEditing={handleSearch}

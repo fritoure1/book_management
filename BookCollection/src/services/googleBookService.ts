@@ -1,4 +1,4 @@
-// src/services/GoogleBooksService.ts
+// src/services/googleBookService.ts
 
 export interface GoogleBookData {
   title: string;
@@ -9,19 +9,34 @@ export interface GoogleBookData {
   total_pages: number;
 }
 
+// On récupère la clé depuis le fichier .env
+const API_KEY = process.env.EXPO_PUBLIC_GOOGLE_BOOK_API_KEY;
+
 export const GoogleBooksService = {
   // Recherche par ISBN (pour le scanner)
   getBookByISBN: async (isbn: string): Promise<GoogleBookData | null> => {
-    const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+    // On ajoute &key=VOTRE_CLE à la fin de l'URL
+    const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&key=${API_KEY}`;
+    
+    const response = await fetch(url);
     const data = await response.json();
     if (!data.items || data.items.length === 0) return null;
     return mapGoogleToInternal(data.items[0], isbn);
   },
 
-  // NOUVEAU : Recherche par texte (pour l'ajout manuel)
+  // Recherche par texte (pour l'ajout manuel)
   searchBooks: async (query: string): Promise<GoogleBookData[]> => {
+    console.log("Ma clé API est :", process.env.EXPO_PUBLIC_GOOGLE_BOOKS_API_KEY);
     try {
-      const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10`);
+      // On ajoute &key=VOTRE_CLE à la fin de l'URL
+      const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10&key=${API_KEY}`;
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+
       const data = await response.json();
       if (!data.items) return [];
 
@@ -33,7 +48,8 @@ export const GoogleBooksService = {
         return mapGoogleToInternal(item, isbn);
       });
     } catch (error) {
-      return [];
+      console.error("Erreur API Google Books :", error);
+      throw error; 
     }
   }
 };
@@ -45,6 +61,7 @@ function mapGoogleToInternal(item: any, isbn: string): GoogleBookData {
     title: info.title || 'Titre inconnu',
     author: info.authors ? info.authors.join(', ') : 'Auteur inconnu',
     isbn: isbn,
+    // On remplace le http en https pour éviter les erreurs de sécurité sur iOS/Android
     cover_url: info.imageLinks?.thumbnail?.replace('http:', 'https:'),
     summary: info.description || '',
     total_pages: info.pageCount || 0,
