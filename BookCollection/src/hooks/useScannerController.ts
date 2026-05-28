@@ -32,7 +32,6 @@ export function useScannerController() {
   });
 
   const handleScan = async (isbn: string) => {
-    // CORRECTION : On ignore tout ce qui n'est pas un vrai ISBN de livre (978 ou 979)
     if (!isbn.startsWith('978') && !isbn.startsWith('979')) {
         return; 
     }
@@ -49,8 +48,6 @@ export function useScannerController() {
         form.setValue('author', bookData.author);
         form.setValue('summary', bookData.summary || '');
       } else {
-        // CORRECTION : On enlève l'alerte pour ne pas bloquer l'utilisateur. 
-        // L'appli va juste réessayer silencieusement.
         setScanned(false);
       }
     } catch (error) {
@@ -75,14 +72,12 @@ export function useScannerController() {
     if (!scannedBook) return;
 
     try {
-      // 1. ON VÉRIFIE LES DOUBLONS ICI
       const isDuplicate = await bookService.checkDuplicate(db, data.title, data.format);
       
       if (isDuplicate) {
       Alert.alert("Doublon", `Tu possèdes déjà "${data.title}" en format ${data.format} !`);        return; // On arrête la fonction ici, on n'enregistre pas.
       }
 
-      // 2. Si c'est bon, on sauvegarde
       await bookService.addBook(db, {
         title: data.title,
         author: data.author,

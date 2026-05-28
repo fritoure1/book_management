@@ -6,7 +6,6 @@ export function useStatsController(db: SQLiteDatabase) {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 1. Logique de récupération
   const fetchBooks = useCallback(async () => {
     setLoading(true);
     try {
@@ -19,7 +18,6 @@ export function useStatsController(db: SQLiteDatabase) {
     }
   }, [db]);
 
-  // 2. Logique de calcul (Le "Cœur Métier")
   const stats = useMemo(() => {
     let totalPagesRead = 0, finished = 0, inProgress = 0, toRead = 0, physical = 0, digital = 0;
 

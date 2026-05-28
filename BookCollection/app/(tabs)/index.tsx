@@ -9,15 +9,12 @@ import { BookCard } from '@/src/components/book-card';
 import { bookService, Book } from '@/src/services/bookService';
 
 export default function HomeScreen() {
-  const db = useSQLiteContext(); // MODULE 8 : Connexion SQLite
-  
-  // États locaux
+  const db = useSQLiteContext(); 
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterFormat, setFilterFormat] = useState<'tous' | 'physique' | 'numerique'>('tous');
 
-  // MODULE 3 & 8 : Recharger les données à chaque apparition de l'écran
   useFocusEffect(
     useCallback(() => {
       let isActive = true;
@@ -36,18 +33,15 @@ export default function HomeScreen() {
 
       fetchBooks();
 
-      return () => { isActive = false; }; // Cleanup
+      return () => { isActive = false; }; 
     }, [db])
   );
 
-  // MODULE 7 : Filtrage optimisé en mémoire (useMemo)
   const filteredBooks = useMemo(() => {
     return books.filter((book) => {
-      // 1. Filtre par format
       if (filterFormat !== 'tous' && book.format !== filterFormat) {
         return false;
       }
-      // 2. Filtre par recherche textuelle (titre ou auteur)
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         const titleMatch = book.title.toLowerCase().includes(query);
@@ -58,7 +52,6 @@ export default function HomeScreen() {
     });
   }, [books, filterFormat, searchQuery]);
 
-  // Rendu de l'écran de chargement
   if (loading && books.length === 0) {
     return (
       <ThemedView style={styles.centerContainer}>
@@ -71,7 +64,7 @@ export default function HomeScreen() {
   return (
     <ThemedView style={styles.container}>
       
-      {/* En-tête */}
+     
       <View style={styles.header}>
         <ThemedText type="title">Collections</ThemedText>
         <Link href="/modal" asChild>
@@ -81,7 +74,7 @@ export default function HomeScreen() {
         </Link>
       </View>
 
-      {/* Barre de recherche locale */}
+  
       <TextInput 
         style={styles.searchInput}
         placeholder="Rechercher dans ma bibliothèque..."
@@ -90,7 +83,6 @@ export default function HomeScreen() {
         onChangeText={setSearchQuery}
       />
 
-      {/* Boutons de Filtre */}
       <View style={styles.filterContainer}>
         {(['tous', 'physique', 'numerique'] as const).map((format) => (
           <Pressable
@@ -105,7 +97,6 @@ export default function HomeScreen() {
         ))}
       </View>
 
-      {/* MODULE 2 : La Liste Optimisée */}
       <FlatList
         data={filteredBooks}
         keyExtractor={(item) => item.id?.toString() || Math.random().toString()}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Image, Pressable } from 'react-native';
-import { Link } from 'expo-router'; // <-- NOUVEAU : Import de la navigation
+import { Link } from 'expo-router'; 
 import { ThemedText } from '@/src/components/themed-text';
 import { Book } from '@/src/services/bookService';
 
@@ -10,11 +10,9 @@ interface BookCardProps {
 
 export const BookCard = React.memo(({ book }: BookCardProps) => {
   return (
-    // <-- NOUVEAU : On englobe la carte avec Link pour la navigation dynamique
     <Link href={`/book/${book.id}`} asChild>
       <Pressable style={styles.card}>
         
-        {/* 1. L'image de couverture (ou un bloc gris par défaut) */}
         {book.cover_url ? (
           <Image source={{ uri: book.cover_url }} style={styles.cover} />
         ) : (
@@ -23,7 +21,6 @@ export const BookCard = React.memo(({ book }: BookCardProps) => {
           </View>
         )}
 
-        {/* 2. Les informations du livre */}
         <View style={styles.infoContainer}>
           <ThemedText type="defaultSemiBold" numberOfLines={2} style={styles.title}>
             {book.title}
@@ -33,7 +30,6 @@ export const BookCard = React.memo(({ book }: BookCardProps) => {
             {book.author}
           </ThemedText>
 
-          {/* 3. Les petits "Badges" visuels pour le format et le statut */}
           <View style={styles.badgesContainer}>
             <View style={[styles.badge, book.format === 'numerique' ? styles.badgeNum : styles.badgePhys]}>
               <ThemedText style={styles.badgeText}>
@@ -55,7 +51,6 @@ export const BookCard = React.memo(({ book }: BookCardProps) => {
 });
 
 const styles = StyleSheet.create({
-  // ATTENTION : Si tu cliques et que c'est moche, ajoute une couleur au clic (ex: opacity)
   card: {
     flexDirection: 'row',
     padding: 12,

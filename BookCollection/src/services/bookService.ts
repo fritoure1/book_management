@@ -29,21 +29,17 @@ export const bookService = {
         book.current_page, book.total_pages
       ])
     },
-    // NOUVEAU : Vérifier si le livre existe déjà dans ce format
     checkDuplicate: async (db: SQLite.SQLiteDatabase, title: string, format: string): Promise<boolean> => {
-      // On utilise LOWER() pour que "Harry Potter" et "harry potter" soient considérés comme identiques
       const existingBook = await db.getFirstAsync<{ id: number }>(
         'SELECT id FROM books WHERE LOWER(title) = LOWER(?) AND format = ?',
         [title, format]
       );
-      // Si existingBook n'est pas null, ça veut dire que le livre existe déjà (true)
       return existingBook !== null;
     },
     getBookById: async (db: SQLite.SQLiteDatabase, id: number): Promise<Book | null> => {
       return await db.getFirstAsync<Book>('SELECT * FROM books WHERE id = ?', [id]);
     },
 
-  // NOUVEAU : Mettre à jour la page actuelle et le statut
   updateProgress: async (db: SQLite.SQLiteDatabase, id: number, currentPage: number, status: string) => {
     return await db.runAsync(
       'UPDATE books SET current_page = ?, status = ? WHERE id = ?',
@@ -60,7 +56,6 @@ export const bookService = {
     return await db.runAsync('DELETE FROM books WHERE id = ?', [id]);
   },
 
-  // MODIFIER un livre (Titre, Auteur, Résumé, Format)
   updateBook: async (db: SQLite.SQLiteDatabase, id: number, book: Partial<Book>) => {
   const query = `
     UPDATE books 
@@ -68,7 +63,6 @@ export const bookService = {
     WHERE id = ?
   `;
 
-  // Correction : on utilise ?? null pour transformer les 'undefined' en 'null'
   return await db.runAsync(query, [
     book.title ?? null, 
     book.author ?? null, 

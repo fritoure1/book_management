@@ -15,19 +15,17 @@ export function useManualSearch() {
     }
 
     setLoading(true);
-    setResults([]); // On vide les anciens résultats pour faire propre
+    setResults([]); 
 
     try {
       const data = await GoogleBooksService.searchBooks(query);
       
-      // 2. On prévient si Google n'a rien trouvé
       if (data.length === 0) {
         Alert.alert("Aucun résultat", "Aucun livre trouvé pour cette recherche sur Google Books.");
       }
       
       setResults(data);
     } catch (error) {
-      // 3. On prévient s'il y a un vrai bug (ex: erreur 400 ou pas d'internet)
       Alert.alert("Erreur", "Un problème est survenu lors de la recherche. Vérifiez votre connexion.");
     } finally {
       setLoading(false);

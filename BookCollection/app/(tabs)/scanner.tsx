@@ -21,7 +21,6 @@ export default function ScannerScreen() {
     );
   }
 
-  // --- SI UN LIVRE EST SCANNÉ : ON AFFICHE LE COMPOSANT REUTILISABLE ---
   if (state.scannedBook) {
     return (
       <BookForm 
@@ -34,7 +33,6 @@ export default function ScannerScreen() {
     );
   }
 
-  // --- SINON : ON AFFICHE LA CAMÉRA ---
   return (
     <ThemedView style={styles.container}>
       {state.loading ? (

@@ -5,15 +5,13 @@ import { useSQLiteContext } from 'expo-sqlite';
 
 import { ThemedText } from '@/src/components/themed-text';
 import { ThemedView } from '@/src/components/themed-view';
-import { useStatsController } from '@/src/hooks/useStatsController'; // Ton fameux contrôleur MVC !
+import { useStatsController } from '@/src/hooks/useStatsController'; 
 
 export default function StatsScreen() {
   const db = useSQLiteContext();
   
-  // La Vue demande les infos au Contrôleur
   const { loading, stats, fetchBooks } = useStatsController(db);
 
-  // Déclencheur à l'ouverture de la page
   useFocusEffect(
     React.useCallback(() => {
       fetchBooks();
@@ -28,19 +26,16 @@ export default function StatsScreen() {
     );
   }
 
-  // --- RENDU VISUEL ---
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <ThemedText type="title" style={styles.pageTitle}>Mes Statistiques</ThemedText>
 
-      {/* Carte Principale : Pages lues */}
       <View style={[styles.card, styles.mainCard]}>
         <ThemedText style={styles.cardTitle}>Total des pages lues</ThemedText>
         <ThemedText style={styles.bigNumber}>{stats.totalPagesRead}</ThemedText>
         <ThemedText style={styles.cardSubtitle}>Continue comme ça ! 🚀</ThemedText>
       </View>
 
-      {/* Grille de statistiques secondaires */}
       <View style={styles.grid}>
         
         {/* Total des livres */}
@@ -111,7 +106,7 @@ const styles = StyleSheet.create({
   },
   mainCard: {
     alignItems: 'center',
-    backgroundColor: '#10b981', // Vert émeraude pour la stat principale
+    backgroundColor: '#10b981', 
   },
   grid: {
     flexDirection: 'row',
@@ -119,14 +114,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   halfCard: {
-    width: '48%', // Prend presque la moitié de l'écran
+    width: '48%', 
     alignItems: 'center',
   },
   
   cardTitle: { fontSize: 14, color: '#ccc', fontWeight: '600', marginBottom: 5, textAlign: 'center' },
   cardSubtitle: { fontSize: 14, color: '#e0f2fe', marginTop: 5 },
   
-  // FIX : Ajout de lineHeight et paddingVertical pour ne pas couper le texte
   bigNumber: { fontSize: 48, fontWeight: 'bold', color: '#fff', lineHeight: 55, paddingVertical: 5 },
   mediumNumber: { fontSize: 32, fontWeight: 'bold', color: '#fff', lineHeight: 40 },
   cardEmoji: { fontSize: 24, marginTop: 5 },

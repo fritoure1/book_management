@@ -182,9 +182,9 @@ export default function BookDetailsScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Stack.Screen 
         options={{ 
-          title: book.title, // Le vrai titre du livre !
-          headerBackTitle: "Retour", // Remplace le "(tabs)" sur iOS
-          headerTintColor: "#10b981" // Optionnel : met la flèche de retour en vert
+          title: book.title, 
+          headerBackTitle: "Retour", 
+          headerTintColor: "#10b981" 
         }} 
       />
       <View style={styles.header}>

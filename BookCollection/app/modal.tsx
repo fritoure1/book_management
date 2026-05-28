@@ -22,14 +22,12 @@ export default function ModalScreen() {
 
   const onSave = async (data: BookFormData) => {
     try {
-      // 1. ON VÉRIFIE LES DOUBLONS ICI
       const isDuplicate = await bookService.checkDuplicate(db, data.title, data.format);
       
       if (isDuplicate) {
       Alert.alert("Doublon", `Tu possèdes déjà "${data.title}" en format ${data.format} !`);        return; // On annule l'ajout
       }
 
-      // 2. Si c'est bon, on sauvegarde
       await bookService.addBook(db, {
         ...data,
         isbn: selectedBook?.isbn || '',
@@ -47,7 +45,6 @@ export default function ModalScreen() {
     }
   };
 
-  // Si un livre est sélectionné (ou qu'on veut créer de zéro), on affiche le formulaire
   if (selectedBook || isManualEmpty) {
     return (
       <ThemedView style={{ flex: 1 }}>
